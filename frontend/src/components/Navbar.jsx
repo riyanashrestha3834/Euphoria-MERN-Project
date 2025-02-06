@@ -1,12 +1,28 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 import { Link, NavLink } from "react-router-dom";
 import LoginPopup from "./LoginPopup"; // Import the LoginPopup component
+import { ShopContext } from "../context/ShopContext";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const [isLoginPopupOpen, setLoginPopupOpen] = useState(false); // State for managing the popup visibility
+  const { searchQuery, setSearchQuery, token, setToken, userName, setUserName } = useContext(ShopContext);
+  const [searchInput, setSearchInput] = useState(searchQuery); // Local state for controlled input
+  
+  useEffect(() => {
+    // Check if there's a token, indicating a logged-in user
+    if (!token) {
+      setLoginPopupOpen(true); // Optionally open the login popup
+    }
+  }, [token]);
+
+  const handleSearch = (e) => {
+    setSearchInput(e.target.value);
+    setSearchQuery(e.target.value); // Update global searchQuery
+  };
 
   const handleOpenLoginPopup = () => {
     setLoginPopupOpen(true);
@@ -14,6 +30,12 @@ const Navbar = () => {
 
   const handleCloseLoginPopup = () => {
     setLoginPopupOpen(false);
+  };
+
+  const handleLogout = () => {
+    setToken(null); // Clear the token when logging out
+    setName(null); // Clear the user's name when logging out
+    alert("You have logged out.");
   };
 
   return (
@@ -36,6 +58,8 @@ const Navbar = () => {
             <div className="relative flex items-center w-full">
               <input
                 type="text"
+                value={searchInput}
+                onChange={handleSearch}
                 placeholder="Search for your products"
                 className="border border-gray-300 rounded-full px-4 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-pink-500"
               />
@@ -50,33 +74,43 @@ const Navbar = () => {
           {/* Navbar Items */}
           <div className="flex items-center gap-4">
             {/* Profile Dropdown */}
-            <div className="relative group sm:block">
-              <img
-                src={assets.account_profile}
-                className="w-6 h-6 cursor-pointer"
-                alt="Profile"
-                onClick={handleOpenLoginPopup} // Open popup on click
-              />
-              <div className="absolute right-0 hidden group-hover:block pt-2 w-36 py-3 px-4 bg-slate-100 text-gray-500 rounded shadow-md">
-                <div className="flex flex-col gap-2">
-                  <Link to="/profile" className="cursor-pointer hover:text-pink-500">
-                    My Profile
-                  </Link>
-                  <Link to="/orders" className="cursor-pointer hover:text-pink-500">
-                    My Orders
-                  </Link>
-                  <p className="cursor-pointer hover:text-pink-500">Logout</p>
+            {token ? (
+              <div className="relative group sm:block">
+                <img
+                  src={assets.account_profile}
+                  className="w-6 h-6 cursor-pointer"
+                  alt="Profile"
+                  // Add profile link here
+                />
+                <div className="absolute right-0 hidden group-hover:block pt-2 w-36 py-3 px-4 bg-slate-100 text-gray-500 rounded shadow-md">
+                  <div className="flex flex-col gap-2">
+                    <Link to="/profile" className="cursor-pointer hover:text-pink-500">
+                      My Profile
+                    </Link>
+                    <Link to="/orders" className="cursor-pointer hover:text-pink-500">
+                      My Orders
+                    </Link>
+                    <p onClick={handleLogout} className="cursor-pointer hover:text-pink-500">
+                      Logout
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div
+                onClick={handleOpenLoginPopup}
+                className="hidden sm:flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-200"
+              >
+                <span className="text-gray-700 text-sm">Login</span>
+              </div>
+            )}
 
-            {/* Login Button */}
-            <div
-              onClick={handleOpenLoginPopup} // Open popup on click
-              className="hidden sm:flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-200"
-            >
-              <span className="text-gray-700 text-sm">Login</span>
-            </div>
+            {/* Show user's name if logged in */}
+            {token && userName && (
+              <span className="text-sm font-medium text-gray-700">
+                Hello, {userName}
+              </span>
+            )}
 
             {/* Cart Section */}
             <Link
@@ -119,6 +153,8 @@ const Navbar = () => {
           <div className="relative flex items-center w-full">
             <input
               type="text"
+              value={searchInput}
+              onChange={handleSearch}
               placeholder="Search for your products"
               className="border border-gray-300 rounded-full px-4 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-pink-500"
             />
@@ -184,52 +220,51 @@ const Navbar = () => {
 
         {/* ALL CATEGORY Section */}
         <div className="hidden px-6 lg:px-16 sm:flex bg-gray-100 py-4 border-t flex-wrap items-center justify-between">
-            <NavLink
-              className={({ isActive }) =>
-                `flex items-center gap-2 hover:text-pink-500 text-base ${
-                  isActive ? "text-pink-500 font-bold" : "text-gray-700"
-                }`
-              }
-            >
-              ALL CATEGORY
-            </NavLink>
-            
-              <NavLink
-                to="/face"
-                className={({ isActive }) =>
-                  `hover:text-pink-500 ${isActive ? "text-pink-500" : ""}`
-                }
-              >
-                FACE
-              </NavLink>
-              <NavLink
-                to="/eyes"
-                className={({ isActive }) =>
-                  `hover:text-pink-500 ${isActive ? "text-pink-500" : ""}`
-                }
-              >
-                EYES
-              </NavLink>
-              <NavLink
-                to="/lips"
-                className={({ isActive }) =>
-                  `hover:text-pink-500 ${isActive ? "text-pink-500" : ""}`
-                }
-              >
-                LIPS
-              </NavLink>
-              <NavLink
-                to="/tools & makeup sets"
-                className={({ isActive }) =>
-                  `hover:text-pink-500 ${isActive ? "text-pink-500" : ""}`
-                }
-              >
-                TOOLS & MAKEUP SETS
-              </NavLink>
-            
-          </div>
+          <NavLink
+            className={({ isActive }) =>
+              `flex items-center gap-2 hover:text-pink-500 text-base ${
+                isActive ? "text-pink-500 font-bold" : "text-gray-700"
+              }`
+            }
+          >
+            ALL CATEGORY
+          </NavLink>
+
+          <NavLink
+            to="/face"
+            className={({ isActive }) =>
+              `hover:text-pink-500 ${isActive ? "text-pink-500" : ""}`
+            }
+          >
+            FACE
+          </NavLink>
+          <NavLink
+            to="/eyes"
+            className={({ isActive }) =>
+              `hover:text-pink-500 ${isActive ? "text-pink-500" : ""}`
+            }
+          >
+            EYES
+          </NavLink>
+          <NavLink
+            to="/lips"
+            className={({ isActive }) =>
+              `hover:text-pink-500 ${isActive ? "text-pink-500" : ""}`
+            }
+          >
+            LIPS
+          </NavLink>
+          <NavLink
+            to="/tools & makeup sets"
+            className={({ isActive }) =>
+              `hover:text-pink-500 ${isActive ? "text-pink-500" : ""}`
+            }
+          >
+            TOOLS & MAKEUP SETS
+          </NavLink>
         </div>
       </div>
+    </div>
   );
 };
 

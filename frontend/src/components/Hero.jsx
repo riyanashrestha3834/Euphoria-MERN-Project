@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
-
+  
 const Hero = () => {
   const images = [
     { src: assets.hero_img_1, title: "NARS COSMETICS", price: "Starting at Rs. 2,999", button: "SHOP NOW" },

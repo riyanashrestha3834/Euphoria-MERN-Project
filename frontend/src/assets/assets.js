@@ -34,7 +34,7 @@ import category_3 from './Category_3.png'
 import check from './check.png'
 import customer_support from './customer_support.png'
 import exchange from './exchange.png'
-
+import camera from './camera.png'
 
 export const assets ={
     logo,
@@ -48,6 +48,7 @@ export const assets ={
     category_1,
     category_2,
     category_3,
+    camera,
     check,
     khalti,
     exchange,
@@ -70,8 +71,9 @@ export const products =[
     description:"A rich, creamy formula that provides a smooth, even finish.",
     price: 3500,
     image:[Nude_Look_Velvet_Finish_100],
-    category:"Dior",
-    subCategory:"Lips",
+    shades:['Nude','Beige', 'Midnight'],
+    brand:"Dior",
+    category:"Lips",
     date: 1716624124512,
     bestseller: true
 },
@@ -80,9 +82,10 @@ export const products =[
     name:"Nude Look Velvet Finish 100",   
     description:"A lip maximizer that provides a smooth, even finish.",
     price: 5800,
-    image:[Nude_1,Nude_2,Nude_3,Nude_4],
-    category:"Dior",
-    subCategory:"Lips",
+    image:[Nude_Look_Velvet_Finish_100,Nude_1,Nude_2,Nude_3,Nude_4],
+    shades:['Nude','Beige', 'Midnight'],
+    brand:"Dior",
+    category:"Lips",
     date: 1716624124512,
     bestseller: true
 },
@@ -92,8 +95,9 @@ export const products =[
     description:"A rich, creamy formula that provides a smooth, even finish.",
     price: 5500,
     image:[Foundation],
-    category:"Lancome",
-    subCategory:"Face",
+    shades:['Nude','Beige', 'Midnight'],
+    brand:"Lancome",
+    category:"Face",
     date: 1716624124512,
     bestseller: true
 },
@@ -103,8 +107,9 @@ export const products =[
     description:"A rich, creamy formula that provides a smooth, even finish.",
     price: 6500,
     image:[lipstick_1],
-    category:"Armani Beauty",
-    subCategory:"Face",
+    shades:['Nude','Beige', 'Midnight'],
+    brand:"Armani Beauty",
+    category:"Face",
     date: 1716624124512,
     bestseller: false
 },
@@ -114,8 +119,9 @@ export const products =[
     description:"A rich, creamy formula that provides a smooth, even finish.",
     price: 4500,
     image:[lipstick_2],
-    category:"Dior",
-    subCategory:"Lips",
+    shades:['Nude','Beige', 'Midnight'],
+    brand:"Dior",
+    category:"Lips",
     date: 1716624124512,
     bestseller: false
 },
@@ -125,8 +131,9 @@ export const products =[
     description:"A rich, creamy formula that provides a smooth, even finish.",
     price: 2200,
     image:[lipstick_3],
-    category:"Chanel",
-    subCategory:"Eyes",
+    shades:['Nude','Beige', 'Midnight'],
+    brand:"Chanel",
+    category:"Eyes",
     date: 1716624124512,
     bestseller: true
 },
@@ -136,8 +143,9 @@ export const products =[
     description:"A rich, creamy formula that provides a smooth, even finish.",
     price: 3200,
     image:[lipstick_4],
-    category:"Dior",
-    subCategory:"Lips",
+    shades:['Nude','Beige', 'Midnight'],
+    brand:"Dior",
+    category:"Lips",
     date: 1716624124512,
     bestseller: true
 }

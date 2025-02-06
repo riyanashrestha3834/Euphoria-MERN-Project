@@ -6,12 +6,22 @@ import { assets } from '../assets/assets';
 import ProductItem from '../components/ProductItem';
 
 const Face = () => {
-  const { products } = useContext(ShopContext);
+  const { products, searchQuery} = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts,setFilterProducts] = useState([]);
   const [category,setCategory] = useState([]);
-  const [subCategory,setSubCategory] = useState([]);
+  const [brand,setBrand] = useState([]);
   const [sortType,setSortType] =useState('relavent')
+ 
+
+  const toggleBrand = (e) => {
+    if (brand.includes(e.target.value)) {
+      setBrand(prev=> prev.filter(item => item !== e.target.value))
+    }
+    else {
+      setBrand(prev=> [...prev, e.target.value])
+    }
+  }
 
   const toggleCategory = (e) => {
     if (category.includes(e.target.value)) {
@@ -22,29 +32,24 @@ const Face = () => {
     }
   }
 
-  const togglesubCategory = (e)=> {
-
-    if(subCategory.includes(e.target.value)){
-      setSubCategory(prev=> prev.filter(item => item !== e.target.value))
-    }
-    else{
-      setSubCategory(prev=> [...prev, e.target.value])
-    }
-  }
-
   const applyFilter = () => {
     let productsCopy =products.slice();
+    productsCopy = productsCopy.filter((item) => item.category === 'Face');
+
+    if(brand.length > 0){
+      productsCopy = productsCopy.filter(item => brand.includes(item.brand))
+    }
 
     if(category.length > 0){
       productsCopy = productsCopy.filter(item => category.includes(item.category))
     }
-
-    if(subCategory.length > 0){
-      productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory))
+    if (searchQuery) {
+      productsCopy = productsCopy.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
 
     setFilterProducts(productsCopy)
-
   }
 
   const sortProduct = () =>{
@@ -67,7 +72,7 @@ const Face = () => {
 
   useEffect(()=>{ 
     applyFilter();
-  },[category,subCategory])
+  },[brand,category, searchQuery])
 
   useEffect(()=>{ 
    sortProduct()
@@ -84,70 +89,70 @@ const Face = () => {
           <p className="mb-3 text-sm font-medium">BRANDS</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Dior'} onChange={toggleCategory} />DIOR
+              <input className="w-3" type="checkbox" value={'Dior'} onChange={toggleBrand} />DIOR
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Estee Lauder'} onChange={toggleCategory} />ESTEE LAUDER
+              <input className="w-3" type="checkbox" value={'Estee Lauder'} onChange={toggleBrand} />ESTEE LAUDER
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Armani Beauty'} onChange={toggleCategory} />ARMANI BEAUTY
+              <input className="w-3" type="checkbox" value={'Armani Beauty'} onChange={toggleBrand} />ARMANI BEAUTY
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Bobbi Brown'} onChange={toggleCategory}/>BOBBI BROWN
+              <input className="w-3" type="checkbox" value={'Bobbi Brown'} onChange={toggleBrand}/>BOBBI BROWN
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Chanel'}onChange={toggleCategory} />CHANEL
+              <input className="w-3" type="checkbox" value={'Chanel'}onChange={toggleBrand} />CHANEL
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Charlotee Tilbury'}onChange={toggleCategory}/>CHARLOTEE TILBURY
+              <input className="w-3" type="checkbox" value={'Charlotee Tilbury'}onChange={toggleBrand}/>CHARLOTEE TILBURY
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Fenty Beauty'}onChange={toggleCategory} />FENTY BEAUTY
+              <input className="w-3" type="checkbox" value={'Fenty Beauty'}onChange={toggleBrand} />FENTY BEAUTY
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Hermes Beauty'} onChange={toggleCategory}/>HERMES BEAUTY
+              <input className="w-3" type="checkbox" value={'Hermes Beauty'} onChange={toggleBrand}/>HERMES BEAUTY
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Huda Beauty'}onChange={toggleCategory} />HUDA BEAUTY
+              <input className="w-3" type="checkbox" value={'Huda Beauty'}onChange={toggleBrand} />HUDA BEAUTY
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Lancome'} onChange={toggleCategory}/>LANCOME
+              <input className="w-3" type="checkbox" value={'Lancome'} onChange={toggleBrand}/>LANCOME
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Pat McGrath Labs'}onChange={toggleCategory}/>PAT MCGRATH LABS
+              <input className="w-3" type="checkbox" value={'Pat McGrath Labs'}onChange={toggleBrand}/>PAT MCGRATH LABS
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Rare Beauty'}onChange={toggleCategory} />RARE BEAUTY
+              <input className="w-3" type="checkbox" value={'Rare Beauty'}onChange={toggleBrand} />RARE BEAUTY
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Tomford Beauty'}onChange={toggleCategory}/>TOMFORD BEAUTY
+              <input className="w-3" type="checkbox" value={'Tomford Beauty'}onChange={toggleBrand}/>TOMFORD BEAUTY
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Valentino Beauty'}onChange={toggleCategory}/>VALENTINO BEAUTY
+              <input className="w-3" type="checkbox" value={'Valentino Beauty'}onChange={toggleBrand}/>VALENTINO BEAUTY
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Westman Atelier'}onChange={toggleCategory}/>WESTMAN ATELIER
+              <input className="w-3" type="checkbox" value={'Westman Atelier'}onChange={toggleBrand}/>WESTMAN ATELIER
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'YSL Beauty'}onChange={toggleCategory}/>YSL BEAUTY
+              <input className="w-3" type="checkbox" value={'YSL Beauty'}onChange={toggleBrand}/>YSL BEAUTY
             </p>
           </div>
         </div>
-        {/* Sub Category Section */}
+        {/*Category Section */}
         <div className={`border border-gray-300 pl-5 py-3 ${showFilter ? '' : 'hidden'} sm:block`}>
           <p className="mb-3 text-sm font-medium">CATEGORIES</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Face'} onChange={togglesubCategory}/>FACE
+              <input className="w-3" type="checkbox" value={'Face'} onChange={toggleCategory}/>FACE
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Eyes'}onChange={togglesubCategory} />EYES
+              <input className="w-3" type="checkbox" value={'Eyes'}onChange={toggleCategory} />EYES
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Lips'} onChange={togglesubCategory}/>LIPS
+              <input className="w-3" type="checkbox" value={'Lips'} onChange={toggleCategory}/>LIPS
             </p>
             <p className="flex gap-2">
-              <input className="w-3" type="checkbox" value={'Tools'} onChange={togglesubCategory}/>TOOLS & MAKEUP SETS
+              <input className="w-3" type="checkbox" value={'Tools'} onChange={toggleCategory}/>TOOLS & MAKEUP SETS
             </p>
           </div>
         </div>
