@@ -1,21 +1,36 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { toast, ToastContainer } from "react-toastify"; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css'; // Import toast CSS
 
 const LoginPopup = ({ isOpen, onClose }) => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(true); 
   const { setToken, backendUrl } = useContext(ShopContext);
+  
 
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState(""); 
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState(""); // Fixed variable name from username to name
   const [confirm_password, setConfirmPassword] = useState("");
+
+  // Clear form fields when switching between login and signup
+  useEffect(() => {
+    if (!isOpen) return; // Only reset when the popup is open
+    setMobile("");
+    setPassword("");
+    setUsername("");
+    setConfirmPassword("");
+  }, [isLogin, isOpen]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!mobile || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+  
     try {
       const response = await fetch(`${backendUrl}/api/user/login`, {
         method: "POST",
@@ -27,25 +42,37 @@ const LoginPopup = ({ isOpen, onClose }) => {
           password,
         }),
       });
-
+  
       const data = await response.json();
       if (response.ok) {
-        setToken(data.token);
-        toast.success("Login successful"); // Show success toast
-        onClose();
+        localStorage.setItem("authToken", data.token); // Store token in localStorage
+        localStorage.setItem("user_id", data.userId); // Store userId in localStorage
+        localStorage.setItem("username", data.username); // Store username in localStorage
+        setToken(data.token); // Update token in context
+        setUsername(data.username); // Update username in context
+        toast.success("Login successful");
+  
+        setTimeout(() => {
+          onClose();
+        }, 1500);
       } else {
-        toast.error(data.message || "Login failed"); // Show error toast
+        toast.error(data.message || "Login failed");
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("An error occurred. Please try again."); // Show error toast
+      toast.error("An error occurred. Please try again.");
     }
   };
-
+  
   const handleSignUp = async (e) => {
     e.preventDefault();
+    if (!username || !mobile || !password || !confirm_password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
     if (password !== confirm_password) {
-      toast.error("Passwords do not match"); // Show error toast
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -56,23 +83,23 @@ const LoginPopup = ({ isOpen, onClose }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
+          username, 
           mobile,
           password,
-          confirm_password
+          confirm_password,
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        toast.success("Sign-up successful. You can now log in."); // Show success toast
-        setIsLogin(true);
+        toast.success("Sign-up successful. You can now log in.");
+        setIsLogin(true); // Switch to login form after successful signup
       } else {
-        toast.error(data.message || "Sign-up failed"); // Show error toast
+        toast.error(data.message || "Sign-up failed");
       }
     } catch (error) {
       console.error("Sign-up error:", error);
-      toast.error("An error occurred. Please try again."); // Show error toast
+      toast.error("An error occurred. Please try again.");
     }
   };
 
@@ -105,6 +132,7 @@ const LoginPopup = ({ isOpen, onClose }) => {
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
               className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-pink-500"
+              required
             />
             <input
               type="password"
@@ -112,6 +140,7 @@ const LoginPopup = ({ isOpen, onClose }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-pink-500"
+              required
             />
             <button
               type="submit"
@@ -126,9 +155,10 @@ const LoginPopup = ({ isOpen, onClose }) => {
             <input
               type="text"
               placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-pink-500"
+              required
             />
             <input
               type="text"
@@ -136,6 +166,7 @@ const LoginPopup = ({ isOpen, onClose }) => {
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
               className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-pink-500"
+              required
             />
             <input
               type="password"
@@ -143,6 +174,7 @@ const LoginPopup = ({ isOpen, onClose }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-pink-500"
+              required
             />
             <input
               type="password"
@@ -150,6 +182,7 @@ const LoginPopup = ({ isOpen, onClose }) => {
               value={confirm_password}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-pink-500"
+              required
             />
             <button
               type="submit"

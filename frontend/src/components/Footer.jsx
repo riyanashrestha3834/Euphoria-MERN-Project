@@ -2,13 +2,14 @@
 import React from 'react';
 import { assets } from '../assets/assets';
 
+
 const Footer = () => {
   return (
     <div className="bg-pink-500 text-white px-5 sm:px-20 py-10 mt-5 text-sm">
       <div className="max-w-screen-lg mx-auto grid grid-cols-1 sm:grid-cols-4 gap-10">
         {/* About Us */}
         <div className="flex flex-col items-start">
-        <p className="text-xl font-medium mb-5">ABOUT US</p>
+          <p className="text-xl font-medium mb-5">ABOUT US</p>
           <p className="w-full">
             Founded in Nepal in 2024 to be a luxury e-commerce platform for cosmetics.
           </p>
@@ -36,7 +37,6 @@ const Footer = () => {
           </div>
           <div className="flex gap-4">
             <img src={assets.khalti} alt="Khalti" className="w-20 h-8" />
-            <img src={assets.stripe} alt="Stripe" className="w-12 h-8" />
           </div>
         </div>
 

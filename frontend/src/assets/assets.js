@@ -35,6 +35,10 @@ import check from './check.png'
 import customer_support from './customer_support.png'
 import exchange from './exchange.png'
 import camera from './camera.png'
+import trash from './trash.png'
+import about from './about.jpg'
+import chatbot from './chatbot.png'
+
 
 export const assets ={
     logo,
@@ -49,11 +53,14 @@ export const assets ={
     category_2,
     category_3,
     camera,
+    trash,
     check,
+    chatbot,
     khalti,
     exchange,
     customer_support,
     play_store,
+    about,
     cart,
     cod,
     facebook,
@@ -138,14 +145,14 @@ export const products =[
     bestseller: true
 },
 {
-    _id:"aaaaa",
+    _id:"aaaag",
     name:"Nude Look Velvet Finish 100",
     description:"A rich, creamy formula that provides a smooth, even finish.",
     price: 3200,
     image:[lipstick_4],
     shades:['Nude','Beige', 'Midnight'],
     brand:"Dior",
-    category:"Lips",
+    category:"Tools",
     date: 1716624124512,
     bestseller: true
 }

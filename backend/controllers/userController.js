@@ -11,33 +11,32 @@ const createToken = (id) => {
 // Route for user login 
 const loginUser = async (req, res) => {
     try {
-        const {mobile, password} = req.body;
-        const user = await userModel.findOne({mobile});
-        if(!user) {
-            return res.json({ success: false, message: "User doesn't exists" });
+        const { mobile, password } = req.body;
+        const user = await userModel.findOne({ mobile });
+        if (!user) {
+            return res.json({ success: false, message: "User doesn't exist" });
         }
         const isMatch = await bcrypt.compare(password, user.password);
-        if(isMatch){
+        if (isMatch) {
             const token = createToken(user._id);
-            res.json({success:true,token})
+            res.json({ success: true, token, userId: user._id }); 
+        } else {
+            res.json({ success: false, message: "Invalid credentials" });
         }
-        else{
-            res.json({success:false, message:"Invalid credentials"})
-        }
-
     } catch (error) {
         console.error(error);
         res.json({ success: false, message: error.message });
     }
 };
 
+
 // Route for user registration
 const registerUser = async (req, res) => {
     try {
-        const { name, mobile, password, confirm_password } = req.body;
+        const { username, mobile, password, confirm_password } = req.body;
 
         // Ensure all fields are present
-        if (!name || !mobile || !password || !confirm_password) {
+        if (!username || !mobile || !password || !confirm_password) {
             return res.json({ success: false, message: "All fields are required" });
         }
 
@@ -68,9 +67,10 @@ const registerUser = async (req, res) => {
 
         // Save new user to the database
         const newUser = new userModel({
-            name,
+            username,
             mobile,
-            password: hashedPassword
+            password: hashedPassword,
+            confirm_password: hashedPassword
         });
 
         const user = await newUser.save();
@@ -86,26 +86,23 @@ const registerUser = async (req, res) => {
 };
 
 
+
 // Route for admin login
 const adminLogin = async (req, res) => {
     try {
         const { mobile, password } = req.body;
 
-        if (!mobile || !password) {
-            return res.json({ success: false, message: "Mobile and password are required" });
-        }
-
-        if (mobile === process.env.ADMIN_MOBILE && password === process.env.ADMIN_PASSWORD) {
+        if (mobile === process.env.ADMIN_MOBILE && password === process.env.ADMIN_PASSWORD){
             const token = jwt.sign(mobile+password, process.env.JWT_SECRET);
-            res.json({ success: true, token });
-        } else {
-            res.json({ success: false, message: "Invalid admin credentials" });
+            res.json({success:true, token})
+        } else{
+            res.json({success:false,message:"Invalid credentials"})
         }
     } catch (error) {
-        console.error(error);
-        res.json({ success: false, message: error.message });
+        console.log("Admin login error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
-};
+}; 
 
 
 

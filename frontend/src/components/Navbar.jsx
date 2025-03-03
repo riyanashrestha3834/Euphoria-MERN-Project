@@ -1,27 +1,25 @@
-/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useContext, useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 import { Link, NavLink } from "react-router-dom";
-import LoginPopup from "./LoginPopup"; // Import the LoginPopup component
+import LoginPopup from "./LoginPopup";
 import { ShopContext } from "../context/ShopContext";
+import { toast, ToastContainer } from "react-toastify";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
-  const [isLoginPopupOpen, setLoginPopupOpen] = useState(false); // State for managing the popup visibility
-  const { searchQuery, setSearchQuery, token, setToken, userName, setUserName } = useContext(ShopContext);
-  const [searchInput, setSearchInput] = useState(searchQuery); // Local state for controlled input
-  
+  const [isLoginPopupOpen, setLoginPopupOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const { searchQuery, setSearchQuery, token, setToken, getCartCount, username, setUsername,notifications,setNotifications } = useContext(ShopContext);
+  const [searchInput, setSearchInput] = useState(searchQuery);
+
   useEffect(() => {
-    // Check if there's a token, indicating a logged-in user
-    if (!token) {
-      setLoginPopupOpen(true); // Optionally open the login popup
-    }
-  }, [token]);
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
 
   const handleSearch = (e) => {
     setSearchInput(e.target.value);
-    setSearchQuery(e.target.value); // Update global searchQuery
+    setSearchQuery(e.target.value);
   };
 
   const handleOpenLoginPopup = () => {
@@ -33,13 +31,13 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    setToken(null); // Clear the token when logging out
-    setName(null); // Clear the user's name when logging out
-    alert("You have logged out.");
+    setToken(null);
+    setUsername(null);
+    toast.success("You have logged out.");
   };
 
   return (
-    <div className="w-full flex flex-col ">
+    <div className="w-full flex flex-col">
       {/* Marquee Section */}
       <div className="bg-pink-500 text-white py-2 text-center text-sm">
         <marquee>Celebrate New Year 2025 with 15% Off on Every Product!</marquee>
@@ -80,7 +78,6 @@ const Navbar = () => {
                   src={assets.account_profile}
                   className="w-6 h-6 cursor-pointer"
                   alt="Profile"
-                  // Add profile link here
                 />
                 <div className="absolute right-0 hidden group-hover:block pt-2 w-36 py-3 px-4 bg-slate-100 text-gray-500 rounded shadow-md">
                   <div className="flex flex-col gap-2">
@@ -106,9 +103,9 @@ const Navbar = () => {
             )}
 
             {/* Show user's name if logged in */}
-            {token && userName && (
+            {token && username && ( 
               <span className="text-sm font-medium text-gray-700">
-                Hello, {userName}
+                Hello, {username}
               </span>
             )}
 
@@ -118,21 +115,36 @@ const Navbar = () => {
               className="relative flex items-center text-gray-700 gap-2"
             >
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-xs flex items-center justify-center rounded-full">
-                10
+                {getCartCount()}
               </span>
               <img src={assets.cart} className="w-6 h-6 cursor-pointer" alt="Cart" />
             </Link>
 
-            {/* Notification Bell */}
-            <div className="relative">
-              <img
-                src={assets.notification}
-                className="w-6 h-6 cursor-pointer"
-                alt="Notifications"
-              />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-xs flex items-center justify-center rounded-full">
-                5
-              </span>
+           {/* Notification Bell with Dropdown */}
+           <div className="relative">
+              <div className="cursor-pointer" onClick={() => setIsNotificationOpen(!isNotificationOpen)}>
+                <img src={assets.notification} className="w-6 h-6" alt="Notifications" />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-xs flex items-center justify-center rounded-full">{notifications.length}</span>
+              </div>
+
+              {/* Notifications Dropdown */}
+              {isNotificationOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  <div className="p-2">
+                    <div className="max-h-60 overflow-y-auto">
+                      {notifications.length > 0 ? (
+                        notifications.map((notify, index) => (
+                          <div key={index} className="p-2 text-sm text-gray-800 border-b last:border-none">
+                            {notify.message}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-gray-500">No notifications.</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -263,6 +275,7 @@ const Navbar = () => {
             TOOLS & MAKEUP SETS
           </NavLink>
         </div>
+        <ToastContainer />
       </div>
     </div>
   );
