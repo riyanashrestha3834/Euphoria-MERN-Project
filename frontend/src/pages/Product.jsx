@@ -17,7 +17,7 @@ const Product = () => {
   const [showTryOnPopup, setShowTryOnPopup] = useState(false);
   const [shade, setShade] = useState('');
   const [lipColor, setLipColor] = useState("#ff6b6b66"); // Default color for lip color changer
-  const [skinToneOpacity, setSkinToneOpacity] = useState(0); // State for skin tone overlay opacity
+  const [skinToneValue, setSkinToneValue] = useState(0.5); // State for skin tone slider (0 to 1)
 
   const fetchProductData = async () => {
     products.forEach((item) => {
@@ -61,16 +61,6 @@ const Product = () => {
     { label: "Purple", value: "#80008066" }, // 40% opacity
     { label: "Orange", value: "#ff8c0066" }, // 40% opacity
   ];
-
-  // Function to interpolate skin tone color based on slider value
-  const getSkinToneColor = (value) => {
-    const light = [248, 213, 181]; // Light skin tone (#f8d5b5)
-    const dark = [90, 58, 42]; // Dark skin tone (#5a3a2a)
-    const r = light[0] + (dark[0] - light[0]) * value;
-    const g = light[1] + (dark[1] - light[1]) * value;
-    const b = light[2] + (dark[2] - light[2]) * value;
-    return `rgba(${r}, ${g}, ${b}, ${skinToneOpacity})`; // Apply opacity for blending
-  };
 
   return productData ? (
     <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100 min-h-screen">
@@ -187,10 +177,10 @@ const Product = () => {
                 id="skin-tone"
                 name="skin-tone"
                 min="0"
-                max="0.9"
+                max="0.8"
                 step="0.1"
-                value={skinToneOpacity}
-                onChange={(e) => setSkinToneOpacity(e.target.value)}
+                value={skinToneValue}
+                onChange={(e) => setSkinToneValue(parseFloat(e.target.value))}
                 className="w-48"
               />
               <p className="text-sm text-gray-600 mt-2">
@@ -201,26 +191,20 @@ const Product = () => {
             <div className="flex flex-col items-center p-8 bg-gray-100 rounded-lg w-full max-w-md mx-auto">
               <h2 className="text-2xl font-bold mb-6">Lip Color Changer</h2>
               <div className="mb-8 w-72 h-56 relative flex justify-center items-center">
-                {/* Background Image */}
+                {/* Background Image with Skin Tone Adjustment */}
                 <div
                   className="w-full h-full rounded-full absolute"
                   style={{
                     backgroundImage: `url(${lipStockImage})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
+                    filter: `brightness(${1.2 - skinToneValue}) contrast(${0.8 + skinToneValue})`, // Adjust brightness and contrast
                   }}
                 ></div>
-                {/* Skin Tone Overlay */}
-                <div
-                  className="w-full h-full rounded-full absolute"
-                  style={{ 
-                    backgroundColor: getSkinToneColor(skinToneOpacity),
-                  }}
-                ></div>
-                {/* Lip shape using SVG */}
+                {/* Lip shape using SVG (10% smaller) */}
                 <svg
                   viewBox="0 0 100 50"
-                  className="w-72 h-32 absolute z-10" // Ensure the SVG is centered and above the skin tone
+                  className="w-64 h-28 absolute z-10" // Reduced size by 10%
                 >
                   <path
                     d="M10,30 Q30,10 50,20 Q70,10 90,30 Q70,50 50,40 Q30,50 10,30 Z"
