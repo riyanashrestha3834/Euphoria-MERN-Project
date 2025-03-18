@@ -19,6 +19,7 @@ import { toast, ToastContainer } from "react-toastify"; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css'; // Import toast CSS
 import Contact from './pages/Contact'
 import Chatbot from './components/Chatbot'
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const App = () => {
   return (
@@ -38,6 +39,7 @@ const App = () => {
         <Route path='/login' element={<LoginPopup/>}/>
         <Route path='/orders' element={<Orders/>}/>
         <Route path='/place-order' element={<PlaceOrder/>}/>
+        <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path='/notifications' element={<NotificationPopup/>}/> 
         </Routes>  
         <Chatbot  />  

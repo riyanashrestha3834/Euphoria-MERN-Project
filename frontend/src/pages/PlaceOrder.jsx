@@ -1,10 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useState, useContext, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import KhaltiCheckout from 'khalti-checkout-web'; // Khalti SDK
 import ProductItem from '../components/ProductItem';
 
 const PlaceOrder = () => {
@@ -33,11 +33,17 @@ const PlaceOrder = () => {
     for (const itemId in cartItems) {
       for (const shade in cartItems[itemId]) {
         if (cartItems[itemId][shade] > 0) {
-          tempData.push({
-            _id: itemId,
-            shade: shade,
-            quantity: cartItems[itemId][shade],
-          });
+          const product = products.find((p) => p._id === itemId);
+          if (product) {
+            tempData.push({
+              _id: itemId,
+              shade: shade,
+              quantity: cartItems[itemId][shade],
+              name: product.name, // Add product name
+              price: product.price, // Add product price
+              image: product.image, // Add product image
+            });
+          }
         }
       }
     }
@@ -46,8 +52,7 @@ const PlaceOrder = () => {
 
   // Calculate total amount
   const totalAmount = cartData.reduce((acc, item) => {
-    const product = products.find((p) => p._id === item._id);
-    return acc + (product?.price * item.quantity || 0);
+    return acc + (item.price * item.quantity || 0);
   }, 0);
 
   // Discount logic
@@ -68,73 +73,55 @@ const PlaceOrder = () => {
     }
   };
 
-  // Initialize Khalti Checkout
-  const khalti = new KhaltiCheckout({
-    publicKey: import.meta.env.KHALTI_PUBLIC_KEY || "0749237d70d84002bd3bfd8ab90cbebb", 
-    productIdentity:"67b3fc6be965ab5e0912d83c",
-    productName: "Dior Forever Glow Foundation - 24 HR",
-    productUrl: 'http://localhost:5173/product/67b3fc6be965ab5e0912d83c',
-    eventHandler: {
-      onSuccess(payload) {
-        // Handle success event
-        console.log('Payment successful:', payload);
-      },
-      onError(error) {
-        // Handle error event
-        console.error('Payment error:', error);
-      },
-      onClose() {
-        // Handle close event
-        console.log('Widget closed');
-      }
-    }
-  });
-
   // Handle Khalti Payment
   const handleKhaltiPayment = async () => {
-    const payload = {
-      amount: grandTotal * 100, // Amount in paisa
-    };
+    if (!selectedAddress) {
+      toast.error('Please select an address.');
+      return;
+    }
 
-    khalti.show(payload, async (response) => {
-      if (response.idx) {
-        // Payment successful, send the token to the backend
-        try {
-          const address = addresses.find((addr) => addr.id === selectedAddress);
-          const orderData = {
-            userId,
-            items: cartData,
-            amount: grandTotal,
-            address: address.details,
-            paymentMethod: 'Khalti',
-            token: response.token,
-          };
+    setIsLoading(true);
 
-          const response = await fetch(`${backendUrl}/api/order/khalti`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token || localStorage.getItem('token')}`,
-            },
-            body: JSON.stringify(orderData),
-          });
+    try {
+      const address = addresses.find((addr) => addr.id === selectedAddress);
+      const orderData = {
+        userId,
+        items: cartData,
+        amount: grandTotal,
+        address: address.details,
+        paymentMethod: 'Khalti',
+      };
 
-          if (!response.ok) {
-            throw new Error('Failed to place order');
-          }
+      // Initiate Khalti payment through backend
+      const response = await fetch(`${backendUrl}/api/order/khalti/initiate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token || localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(orderData),
+      });
 
-          const result = await response.json();
-          toast.success('Order placed successfully!');
-          setCartItems({});
-          navigate('/orders');
-        } catch (error) {
-          console.error('Error placing Khalti order:', error);
-          toast.error('Failed to place order. Please try again.');
-        }
-      } else {
-        toast.error('Payment failed.');
+      if (!response.ok) {
+        throw new Error('Failed to initiate payment');
       }
-    });
+
+      const { paymentUrl } = await response.json();
+
+      // Ensure paymentUrl is valid before redirecting
+      if (!paymentUrl) {
+        throw new Error('Invalid payment URL');
+      }
+
+      // Redirect to Khalti payment page
+      window.location.href = paymentUrl;
+
+    } catch (error) {
+      console.error('Error initiating Khalti payment:', error);
+      toast.error('Failed to initiate payment. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handle placing order COD
@@ -151,25 +138,25 @@ const PlaceOrder = () => {
       toast.error('Your cart is empty. Please add items before placing an order.');
       return;
     }
-
+  
     setIsLoading(true);
-
+  
     try {
+      const address = addresses.find((addr) => addr.id === selectedAddress);
+      const orderData = {
+        userId,
+        items: cartData,
+        amount: grandTotal,
+        address: address.details,
+        paymentMethod: selectedPayment === 0 ? 'COD' : 'Khalti', // 0 for COD, 1 for Khalti
+      };
+
+      console.log('Order Data:', orderData); // Debugging: Log the order data
+
+      let response;
       if (selectedPayment === 1) {
         // Khalti payment
-        await handleKhaltiPayment();
-      } else if (selectedPayment === 0) {
-        // COD payment
-        const address = addresses.find((addr) => addr.id === selectedAddress);
-        const orderData = {
-          userId,
-          items: cartData,
-          amount: grandTotal,
-          address: address.details,
-          paymentMethod: 'COD',
-        };
-
-        const response = await fetch(`${backendUrl}/api/order/place`, {
+        response = await fetch(`${backendUrl}/api/order/khalti/initiate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -177,12 +164,32 @@ const PlaceOrder = () => {
           },
           body: JSON.stringify(orderData),
         });
-
+  
         if (!response.ok) {
+          throw new Error('Failed to initiate payment');
+        }
+  
+        const { paymentUrl } = await response.json();
+        window.location.href = paymentUrl; // Redirect to Khalti payment page
+      } else {
+        // COD payment
+        response = await fetch(`${backendUrl}/api/order/place`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token || localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(orderData),
+        });
+  
+        if (!response.ok) {
+          const errorResponse = await response.json(); // Debugging: Log the error response
+          console.error('Error Response:', errorResponse);
           throw new Error('Failed to place order');
         }
-
+  
         const result = await response.json();
+        console.log('Order Placed Successfully:', result); // Debugging: Log the success response
         toast.success('Order placed successfully!');
         setCartItems({});
         navigate('/orders');
